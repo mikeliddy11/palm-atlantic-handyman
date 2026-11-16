@@ -106,6 +106,33 @@
     .bleed img{aspect-ratio:1.5/1; max-height:none; object-position:50% 55%}
     .band img{aspect-ratio:1.5/1}
   }
+
+  /* quote form */
+  #quote .lede{margin-bottom:0}
+  .qform{margin-top:34px; max-width:580px}
+  .frow{display:grid; gap:6px; margin-bottom:18px}
+  @media (min-width:700px){ .frow.two{grid-template-columns:1fr 1fr; column-gap:20px} }
+  .frow label{font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+  .qform input[type=text],.qform input[type=tel],.qform textarea{
+    width:100%; min-height:52px; padding:13px 14px; font:inherit; font-size:16px; color:var(--ink);
+    background:#fff; border:1px solid var(--line); border-radius:2px; font-family:inherit}
+  .qform textarea{min-height:96px; resize:vertical}
+  .qform input:focus,.qform textarea:focus{outline:2px solid var(--navy); outline-offset:1px; border-color:var(--navy)}
+  .hp{position:absolute!important; left:-9999px; width:1px; height:1px; opacity:0; pointer-events:none}
+  .formnote{margin:16px 0 0; font-size:14px; color:var(--muted)}
+  .formnote a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line)}
+  .qmsg{margin:16px 0 0; font-size:15px; min-height:22px; color:var(--muted)}
+  .qmsg.ok{color:#1B6B3A}
+  .qmsg.err{color:#B3261E}
+  .qform button[disabled]{opacity:.6; cursor:default}
+  /* areas */
+  .areas li{padding:0}
+  .areas a{display:flex; align-items:center; justify-content:space-between; gap:16px;
+    min-height:52px; text-decoration:none; font-size:17px; font-weight:500; padding:0 2px}
+  .areas a:hover span{text-decoration:underline}
+  .areas .arw{color:var(--muted); font-size:15px}
+  .crumb{font-size:13px; color:var(--muted); margin:0 0 18px}
+  .crumb a{color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line)}
 </style>
 <script type="application/ld+json">
 {
@@ -161,6 +188,41 @@
     </ul>
   </section>
 
+  <section class="wrap tight" id="quote">
+    <h2>Get a price</h2>
+    <p class="lede">Name, number and what needs doing. That is all we need to send a real number back.</p>
+    <form class="qform" id="qform" action="https://jarvis-3f05e00a.base44.app/functions/quoteRequest" method="post">
+      <div class="frow two">
+        <div><label for="q-name">Your name</label>
+          <input id="q-name" name="name" type="text" required autocomplete="name"></div>
+        <div><label for="q-phone">Phone</label>
+          <input id="q-phone" name="phone" type="tel" required autocomplete="tel" inputmode="tel"></div>
+      </div>
+      <div class="frow">
+        <label for="q-job">What needs doing</label>
+        <textarea id="q-job" name="job" rows="3" placeholder="Patch a hallway wall and refit a vanity"></textarea>
+      </div>
+      <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <input type="hidden" name="client" value="Palm Atlantic Handyman">
+      <input type="hidden" name="town" value="Palm Beach County">
+      <button class="btn" type="submit">Send it</button>
+      <p class="qmsg" id="qmsg" role="status" aria-live="polite"></p>
+      <p class="formnote">Would rather text? Send a photo to <a href="sms:+19546070846">(954) 607-0846</a>.</p>
+    </form>
+  </section>
+  <section class="wrap tight">
+    <h2>Areas we serve</h2>
+    <p class="lede">Mobile across Palm Beach County. Pick your town for the local page.</p>
+    <ul class="list areas">
+      <li><a href="areas/west-palm-beach/"><span>West Palm Beach</span><span class="arw">→</span></a></li>
+      <li><a href="areas/boynton-beach/"><span>Boynton Beach</span><span class="arw">→</span></a></li>
+      <li><a href="areas/delray-beach/"><span>Delray Beach</span><span class="arw">→</span></a></li>
+      <li><a href="areas/royal-palm-beach/"><span>Royal Palm Beach</span><span class="arw">→</span></a></li>
+      <li><a href="areas/wellington/"><span>Wellington</span><span class="arw">→</span></a></li>
+      <li><a href="areas/lake-worth-beach/"><span>Lake Worth Beach</span><span class="arw">→</span></a></li>
+    </ul>
+  </section>
+
   <section class="wrap tight">
     <h2>Before and after</h2>
     <div class="ba">
@@ -205,6 +267,37 @@
     <span>Palm Beach County, Florida</span>
   </div>
 </footer>
+
+<script>
+(function(){
+  var f=document.getElementById('qform'); if(!f) return;
+  var msg=document.getElementById('qmsg'), btn=f.querySelector('button[type=submit]');
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var data={name:f.name.value,phone:f.phone.value,job:f.job.value,
+      website:f.website.value,client:f.client.value,town:f.town.value,
+      page:location.href};
+    btn.disabled=true; msg.className='qmsg'; msg.textContent='Sending...';
+    fetch(f.action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+      .then(function(r){return r.json();})
+      .then(function(r){
+        if(r && r.ok){
+          msg.className='qmsg ok';
+          msg.textContent='Got it. We will text a price to that number.';
+          f.reset();
+          setTimeout(function(){btn.disabled=false;},600);
+        } else {
+          btn.disabled=false; msg.className='qmsg err';
+          msg.textContent=(r && r.error) || 'That did not send. Call or text instead.';
+        }
+      })
+      .catch(function(){
+        btn.disabled=false; msg.className='qmsg err';
+        msg.textContent='No connection. Call or text instead.';
+      });
+  });
+})();
+</script>
 
 </body>
 </html>
