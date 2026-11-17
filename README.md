@@ -1,7 +1,9 @@
-# Palm Atlantic Handyman
+# Palm Atlantic Handyman Services: website preview
 
-Ascetic one page site for Palm Atlantic Handyman Services, Palm Beach County FL.
+Live: https://mikeliddy11.github.io/palm-atlantic-handyman/ (short link https://is.gd/palmatlanticpb)
 
-Built by Jarvis. Photos are the owner's own Instagram work at 1800px.
+The original design (navy, logo, before/after hero, text-message mockup) for Palm Beach County, with:
+- a Free quote pop-up and a quote form on every page, posting to the Website Leads server (site ID checked server side, owner alerts)
+- one page per town in `areas/`: West Palm Beach, Boynton Beach, Delray Beach, Royal Palm Beach, Wellington, Lake Worth Beach
 
-Service area, reviews and phone verified from the Google Business listing and the owner's own posts.
+Built by `palm_atlantic.py` (Website builder Project, `projects/local-business-websites/tools/`). Edit the generator, not these files.
